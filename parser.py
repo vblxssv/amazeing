@@ -5,7 +5,6 @@ from typing import Dict, Any, Tuple
 class Parser:
     """
     Class for parsing and validating the maze configuration file.
-
     Handles parameter reading, type conversion, and logical constraint
     checking, including minimum size for the '42' pattern and collision
     detection for entry/exit points.
@@ -118,7 +117,6 @@ class Parser:
                     y_offset <= py < y_offset + pat_h):
                 local_x = px - x_offset
                 local_y = py - y_offset
-
                 if pattern_mask[local_y][local_x] == 1:
                     raise ValueError(
                         f"{name} {px,py} coincides with '42' pattern wall."
