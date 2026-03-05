@@ -112,14 +112,14 @@ class Parser:
 
         for name, (px, py) in [('Entry', d['entry']), ('Exit', d['exit'])]:
             if not (0 <= px < w and 0 <= py < h):
-                raise ValueError(f"{name} {px,py} is out of bounds {w}x{h}.")
+                raise ValueError(f"{name} {px, py} is out of bounds {w}x{h}.")
             if (x_offset <= px < x_offset + pat_w and
                     y_offset <= py < y_offset + pat_h):
                 local_x = px - x_offset
                 local_y = py - y_offset
                 if pattern_mask[local_y][local_x] == 1:
                     raise ValueError(
-                        f"{name} {px,py} coincides with '42' pattern wall."
+                        f"{name} {px, py} coincides with '42' pattern wall."
                     )
 
         if d['entry'] == d['exit']:
