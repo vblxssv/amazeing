@@ -1,29 +1,34 @@
 # Переменные
-PYTHON = python3
-PIP = pip3
+PYTHON_SYS = python3
+VENV = .venv
+PYTHON = $(VENV)/bin/python3
+PIP = $(VENV)/bin/pip3
 MAIN_SCRIPT = a_maze_ing.py
 CONFIG = config.txt
 PACKAGE_NAME = mazegen
 
-.PHONY: all install run debug clean lint lint-strict build
+.PHONY: all install run debug clean lint lint-strict build venv
 
-all: lint build
+all: venv lint build
 
-# III.2: Install project dependencies
-install:
-	$(PIP) install --upgrade pip
-	$(PIP) install flake8 mypy build
+venv:
+	@if [ ! -d "$(VENV)" ]; then \
+		$(PYTHON_SYS) -m venv $(VENV); \
+		$(PIP) install --upgrade pip; \
+		$(PIP) install mlx flake8 mypy build; \
+		echo "Virtual environment created and dependencies installed."; \
+	fi
 
-# III.2: Execute the main script
-run:
+install: venv
+
+run: venv
 	$(PYTHON) $(MAIN_SCRIPT) $(CONFIG)
 
-# III.2: Run the main script in debug mode (using pdb)
-debug:
+debug: venv
 	$(PYTHON) -m pdb $(MAIN_SCRIPT) $(CONFIG)
 
-# III.2: Remove temporary files or caches
 clean:
+	rm -rf $(VENV)
 	rm -rf __pycache__
 	rm -rf .pytest_cache
 	rm -rf .mypy_cache
@@ -32,18 +37,15 @@ clean:
 	rm -rf *.egg-info
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
-# III.2: Mandatory lint with specific flags
-lint:
-	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+lint: venv
+	$(PYTHON) -m flake8 .
+	$(PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
-# III.2: Optional strict lint
-lint-strict:
-	flake8 .
-	mypy . --strict
+lint-strict: venv
+	$(PYTHON) -m flake8 .
+	$(PYTHON) -m mypy . --strict
 
-# Дополнительное правило для сборки .whl пакета (Chapter VI)
-build:
+build: venv
 	$(PYTHON) -m build
 	cp dist/*.whl .
 	@echo "Build complete. Wheel file is in the root directory."
