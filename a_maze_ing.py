@@ -1,5 +1,5 @@
 from typing import List
-from parser import Parser
+from MazeGenerator.parser import Parser
 import sys
 from MazeGenerator.MazeEngine import MazeEngine
 
