@@ -9,7 +9,6 @@ class Parser:
     checking, including minimum size for the '42' pattern and collision
     detection for entry/exit points.
     """
-
     def __init__(self, file_path: str):
         """
         Initialize the parser with the path to the config file.
@@ -127,8 +126,8 @@ class Parser:
 
         return True
 
-    def get_args_tuple(self) -> Tuple[int, int, Tuple[int, int],
-                                      Tuple[int, int], str, bool, int]:
+    def get_args(self) -> Tuple[int, int, Tuple[int, int],
+                                Tuple[int, int], str, bool, int]:
         """
         Return a tuple of parameters for initializing MazeGenerator.
 
