@@ -38,12 +38,12 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 lint: venv
-	$(PYTHON) -m flake8 .
-	$(PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	$(PYTHON) -m flake8 . --exclude=$(VENV),build,dist
+	$(PYTHON) -m mypy . --exclude $(VENV) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict: venv
-	$(PYTHON) -m flake8 .
-	$(PYTHON) -m mypy . --strict
+	$(PYTHON) -m flake8 . --exclude=$(VENV),build,dist
+	$(PYTHON) -m mypy . --exclude $(VENV) --strict
 
 build: venv
 	$(PYTHON) -m build

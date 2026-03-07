@@ -3,7 +3,8 @@ import sys
 from MazeGenerator.maze_engine import MazeEngine
 
 
-def main():
+def main() -> None:
+    """Entry point of the program. Takes no arguments."""
     if len(sys.argv) != 2:
         print("Using: python3 main.py <path_to_config>")
         print("Example: python main.py maze.conf")

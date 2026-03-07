@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 class MazeWriter:
     def save(self, grid: List[List[int]], entry: Tuple[int, int],
-             exit: Tuple[int, int], path: str, filename: str):
+             exit: Tuple[int, int], path: str, filename: str) -> None:
         try:
             with open(filename, 'w', encoding='utf-8') as f:
                 for row in grid:
