@@ -123,14 +123,12 @@ class Parser:
 
         if d['entry'] == d['exit']:
             raise ValueError("Entry and Exit points must be different.")
-
         return True
 
     def get_args(self) -> Tuple[int, int, Tuple[int, int],
                                 Tuple[int, int], str, bool, int]:
         """
         Return a tuple of parameters for initializing MazeGenerator.
-
         Order: (width, height, entry, exit, output_file, perfect, seed)
         """
         if not self.validated_data:

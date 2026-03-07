@@ -15,7 +15,7 @@ class MazeRenderer:
     EXIT_C: str = "\033[96m"
     RESET: str = "\033[0m"
 
-    def print_maze_final(
+    def print_maze(
         self,
         grid: List[List[int]],
         start: Tuple[int, int],

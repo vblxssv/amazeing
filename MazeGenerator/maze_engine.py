@@ -63,6 +63,6 @@ class MazeEngine:
         """Render the maze and solution path to the console."""
         if not self.maze:
             self.generate()
-        self.renderer.print_maze_final(
+        self.renderer.print_maze(
             self.maze, self.entry, self.path, self.exit
         )

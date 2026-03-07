@@ -13,6 +13,6 @@ class MazeWriter:
                 f.write(f"{entry[0]},{entry[1]}\n")
                 f.write(f"{exit[0]},{exit[1]}\n")
                 f.write(f"{path}\n")
-            print(f"Успешно сохранено в: {filename}")
+            print(f"Successfully saved into: {filename}")
         except Exception as e:
-            print(f"Ошибка записи: {e}")
+            print(f"Error writing: {e}")
