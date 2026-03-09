@@ -1,10 +1,13 @@
+"""Module for various maze generation algorithms."""
+
 import random
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Set
 
 
 class MazeStrategy(ABC):
     """Base class for maze generation strategies with shared utilities."""
+
     N, E, S, W = 1, 2, 4, 8
     PATTERN = [
         [1, 0, 0, 0, 1, 1, 1],
@@ -25,7 +28,15 @@ class MazeStrategy(ABC):
               c2: Tuple[int, int], d: int) -> None:
         """Remove the wall between two adjacent cells."""
         grid[c1[1]][c1[0]] &= ~d
-        rev = self.W if d == self.E else self.N
+        # Correct reverse bit calculation
+        if d == self.N:
+            rev = self.S
+        elif d == self.S:
+            rev = self.N
+        elif d == self.E:
+            rev = self.W
+        else:
+            rev = self.E
         grid[c2[1]][c2[0]] &= ~rev
 
     def _open_ext(self, grid: List[List[int]], pos: Tuple[int, int],
@@ -43,17 +54,18 @@ class MazeStrategy(ABC):
 
 
 class PerfectMazeGen(MazeStrategy):
-    """
-    Kruskal's algorithm implementation for generating a perfect maze
-    while respecting a central wall pattern.
-    """
+    """Kruskal's algorithm for generating a perfect maze."""
+
     def generate(self, width: int, height: int, entry: Tuple[int, int],
                  exit_coords: Tuple[int, int], seed: int) -> List[List[int]]:
+        """Generate a maze with a single unique path between any two points."""
         random.seed(seed)
         grid = [[15 for _ in range(width)] for _ in range(height)]
         ox, oy = (width - self.P_W) // 2, (height - self.P_H) // 2
 
-        parent = {(x, y): (x, y) for y in range(height) for x in range(width)}
+        parent: Dict[Tuple[int, int], Tuple[int, int]] = {
+            (x, y): (x, y) for y in range(height) for x in range(width)
+        }
 
         def find(i: Tuple[int, int]) -> Tuple[int, int]:
             if parent[i] == i:
@@ -68,7 +80,7 @@ class PerfectMazeGen(MazeStrategy):
                 return True
             return False
 
-        blocked: set[Tuple[int, int]] = set()
+        blocked: Set[Tuple[int, int]] = set()
         for py in range(self.P_H):
             for px in range(self.P_W):
                 if self.PATTERN[py][px] == 1:
@@ -88,11 +100,7 @@ class PerfectMazeGen(MazeStrategy):
 
         for (x1, y1), (x2, y2), direction in edges:
             if union((x1, y1), (x2, y2)):
-                if direction == self.E:
-                    self._open(grid, (x1, y1), (x2, y2), self.E)
-                elif direction == self.S:
-                    grid[y1][x1] &= ~self.S
-                    grid[y2][x2] &= ~self.N
+                self._open(grid, (x1, y1), (x2, y2), direction)
         return grid
 
 
@@ -123,9 +131,12 @@ class NonPerfectMazeGen(MazeStrategy):
                     walls.append(((x, y), (x, y + 1), self.S))
 
         random.shuffle(walls)
-        parent = {(x, y): (x, y) for x in range(width) for y in range(height)}
+        parent: Dict[Tuple[int, int], Tuple[int, int]] = {
+            (x, y): (x, y) for x in range(width) for y in range(height)
+        }
 
-        def find(p):
+        # Fixed missing type annotations here
+        def find(p: Tuple[int, int]) -> Tuple[int, int]:
             if parent[p] == p:
                 return p
             parent[p] = find(parent[p])
@@ -163,10 +174,14 @@ class NonPerfectMazeGen(MazeStrategy):
                     break
             if found_void:
                 break
+
         if found_void:
+            # Re-close wall if void found
             grid[c1[1]][c1[0]] |= d
-            rev = self.W if d == self.E else self.N
-            grid[c2[1]][c2[0]] |= rev
+            if d == self.E:
+                grid[c2[1]][c2[0]] |= self.W
+            elif d == self.S:
+                grid[c2[1]][c2[0]] |= self.N
         return found_void
 
     def _is_3x3_empty(self, grid: List[List[int]], sx: int, sy: int) -> bool:

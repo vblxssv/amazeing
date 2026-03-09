@@ -7,6 +7,10 @@ from MazeGenerator.maze_generator import NonPerfectMazeGen
 
 
 class MazeEngine:
+    """
+    Orchestrates maze generation, solving, saving, and rendering.
+    """
+
     def __init__(
         self,
         width: int,
@@ -17,7 +21,7 @@ class MazeEngine:
         perfect: bool,
         seed: int
     ) -> None:
-        """Initialize the maze engine with all necessary components."""
+        """Initialize the maze engine with its required components."""
         self.width = width
         self.height = height
         self.entry = entry
@@ -44,7 +48,7 @@ class MazeEngine:
         self.path = ""
 
     def solve(self) -> None:
-        """Solve the generated maze and store the path."""
+        """Solve the generated maze and store the solution path."""
         if not self.maze:
             self.generate()
 
@@ -52,17 +56,25 @@ class MazeEngine:
         self.path = solution if solution else ""
 
     def save(self) -> None:
-        """Save the maze and solution metadata to a hex file."""
+        """Save the maze and solution metadata to the output file."""
         if not self.maze:
             self.generate()
         self.writer.save(
             self.maze, self.entry, self.exit, self.path, self.output_file
         )
 
-    def show(self) -> None:
-        """Render the maze and solution path to the console."""
+    def show(self, with_path: bool = False) -> None:
+        """
+        Render the maze to the console.
+        Args:
+            with_path: If True, renders the solved path on the maze.
+        """
         if not self.maze:
             self.generate()
-        self.renderer.print_maze(
-            self.maze, self.entry, self.path, self.exit
+        self.renderer.render(
+            grid=self.maze,
+            start=self.entry,
+            path_str=self.path,
+            end_coords=self.exit,
+            show_path=with_path
         )
