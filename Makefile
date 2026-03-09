@@ -27,8 +27,6 @@ install: venv
 run: venv
 	@$(PYTHON) $(MAIN_SCRIPT) $(CONFIG)
 
-debug: venv
-	$(PYTHON) -m pdb $(MAIN_SCRIPT) $(CONFIG)
 
 clean:
 	$(INFO) "Cleaning up workspace..."
