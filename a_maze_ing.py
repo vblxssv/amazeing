@@ -8,10 +8,9 @@ from MazeGenerator.maze_engine import MazeEngine
 def print_menu() -> None:
     """Print the user command menu."""
     print("\n--- Maze Generator Menu ---")
-    print("g - Generate new maze (with current seed)")
+    print("g - Generate new maze (autosave to file)")
     print("s - Show/Hide solution path")
     print("t - Next theme")
-    print("w - Write/Save to file")
     print("q - Quit")
     print("---------------------------")
 
@@ -19,7 +18,7 @@ def print_menu() -> None:
 def main() -> None:
     """Run the main interactive CLI loop."""
     if len(sys.argv) != 2:
-        print("Usage: python3 main.py <path_to_config>")
+        print("Usage: python3 a_maze_ing.py <path_to_config>")
         return
 
     config_path = sys.argv[1]
@@ -28,16 +27,15 @@ def main() -> None:
     try:
         args = parser.get_args()
         engine = MazeEngine(*args)
-
         engine.generate()
         engine.solve()
-
+        engine.save()
         show_path = True
-
         while True:
             print("\033[H\033[J", end="")
             theme_name = engine.renderer.get_current_theme_name()
-            print(f"\nCurrent Theme: {theme_name}")
+            print(f"Current Theme: {theme_name}")
+            print(f"Output File: {engine.output_file} (Autosaved)")
 
             engine.show(with_path=show_path)
             print_menu()
@@ -48,19 +46,16 @@ def main() -> None:
                 engine.seed += 1
                 engine.generate()
                 engine.solve()
+                engine.save()
             elif choice == 's':
                 show_path = not show_path
             elif choice == 't':
                 engine.renderer.next_theme()
-            elif choice == 'w':
-                engine.save()
-                print(f"Maze saved to {engine.output_file}")
-                input("Press Enter to continue...")
             elif choice == 'q':
                 print("Goodbye!")
                 break
             else:
-                print("Invalid command. Try again.")
+                input("Invalid command. Press Enter to try again...")
 
     except FileNotFoundError:
         print(f"Error: File '{config_path}' not found.")

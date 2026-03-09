@@ -6,14 +6,12 @@ PIP          := $(VENV)/bin/pip
 MAIN_SCRIPT  := a_maze_ing.py
 CONFIG       := config.txt
 
-# Форматирование вывода
 INFO := @echo "\033[32m[INFO]\033[0m"
 
 .PHONY: all venv install run clean lint lint-strict build test-install
 
 all: install lint build
 
-# Создание виртуального окружения
 $(VENV)/bin/activate: requirements.txt
 	$(INFO) "Creating virtual environment and installing dependencies..."
 	$(PYTHON_SYS) -m venv $(VENV)
@@ -49,10 +47,11 @@ lint-strict: venv
 
 build: venv
 	$(INFO) "Starting build process..."
-	rm -rf dist build *.egg-info
-	$(PYTHON) -m build
+	@rm -rf dist build *.egg-info
+	@$(PYTHON) -m build
 	@cp dist/*.whl .
-	$(INFO) "Success: Wheel file is located at the root of the repository."
+	@rm -rf dist build *.egg-info
+	$(INFO) "Success: Wheel file is at the root. Temporary folders removed."
 
 test-install: build
 	$(INFO) "Verifying installation from wheel..."
