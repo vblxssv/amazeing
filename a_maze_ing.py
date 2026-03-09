@@ -1,8 +1,8 @@
-"""Entry point for the Maze Generator CLI application."""
-
 import sys
-from MazeGenerator.parser import Parser
+from typing import Tuple
+
 from MazeGenerator.maze_engine import MazeEngine
+from MazeGenerator.parser import Parser
 
 
 def print_menu() -> None:
@@ -21,37 +21,40 @@ def main() -> None:
         print("Usage: python3 a_maze_ing.py <path_to_config>")
         return
 
-    config_path = sys.argv[1]
-    parser = Parser(config_path)
+    config_path: str = sys.argv[1]
+    parser: Parser = Parser(config_path)
 
     try:
-        args = parser.get_args()
-        engine = MazeEngine(*args)
+        args: Tuple[
+            int, int, Tuple[int, int], Tuple[int, int], str, bool, int
+        ] = parser.get_args()
+        engine: MazeEngine = MazeEngine(*args)
         engine.generate()
         engine.solve()
         engine.save()
-        show_path = True
+
+        show_path: bool = True
         while True:
             print("\033[H\033[J", end="")
-            theme_name = engine.renderer.get_current_theme_name()
+            theme_name: str = engine.renderer.get_current_theme_name()
             print(f"Current Theme: {theme_name}")
             print(f"Output File: {engine.output_file} (Autosaved)")
 
             engine.show(with_path=show_path)
             print_menu()
 
-            choice = input("Select action: ").lower().strip()
+            choice: str = input("Select action: ").lower().strip()
 
-            if choice == 'g':
+            if choice == "g":
                 engine.seed += 1
                 engine.generate()
                 engine.solve()
                 engine.save()
-            elif choice == 's':
+            elif choice == "s":
                 show_path = not show_path
-            elif choice == 't':
+            elif choice == "t":
                 engine.renderer.next_theme()
-            elif choice == 'q':
+            elif choice == "q":
                 print("Goodbye!")
                 break
             else:
@@ -59,10 +62,10 @@ def main() -> None:
 
     except FileNotFoundError:
         print(f"Error: File '{config_path}' not found.")
-    except ValueError as e:
-        print(f"Error in config file: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    except ValueError as error:
+        print(f"Error in config file: {error}")
+    except OSError as error:
+        print(f"System error: {error}")
 
 
 if __name__ == "__main__":

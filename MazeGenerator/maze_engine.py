@@ -1,14 +1,32 @@
-from typing import Tuple, List
-from MazeGenerator.path_finder import MazeSolver
-from MazeGenerator.maze_writer import MazeWriter
+from typing import List, Optional, Tuple
+
+from MazeGenerator.maze_generator import (
+    MazeStrategy,
+    NonPerfectMazeGen,
+    PerfectMazeGen,
+)
 from MazeGenerator.maze_renderer import MazeRenderer
-from MazeGenerator.maze_generator import MazeStrategy, PerfectMazeGen
-from MazeGenerator.maze_generator import NonPerfectMazeGen
+from MazeGenerator.maze_writer import MazeWriter
+from MazeGenerator.path_finder import MazeSolver
 
 
 class MazeEngine:
     """
     Orchestrates maze generation, solving, saving, and rendering.
+
+    Attributes:
+        width (int): The width of the maze grid.
+        height (int): The height of the maze grid.
+        entry (Tuple[int, int]): Starting coordinates.
+        exit_coords (Tuple[int, int]): Ending coordinates.
+        output_file (str): Path to the destination file.
+        seed (int): Random seed for generation.
+        algorithm (MazeStrategy): The strategy used for generation.
+        writer (MazeWriter): Component for file operations.
+        solver (MazeSolver): Component for finding paths.
+        renderer (MazeRenderer): Component for visual output.
+        maze (List[List[int]]): The generated grid structure.
+        path (str): The string representation of the solution path.
     """
 
     def __init__(
@@ -19,23 +37,34 @@ class MazeEngine:
         exit_coords: Tuple[int, int],
         output_file: str,
         perfect: bool,
-        seed: int
+        seed: int,
     ) -> None:
-        """Initialize the maze engine with its required components."""
-        self.width = width
-        self.height = height
-        self.entry = entry
-        self.exit = exit_coords
-        self.output_file = output_file
-        self.seed = seed
+        """
+        Initialize the maze engine with its required components.
+
+        Args:
+            width: Width of the grid.
+            height: Height of the grid.
+            entry: Start coordinates.
+            exit_coords: Target coordinates.
+            output_file: Storage path.
+            perfect: Whether to use the perfect maze algorithm.
+            seed: Randomization seed.
+        """
+        self.width: int = width
+        self.height: int = height
+        self.entry: Tuple[int, int] = entry
+        self.exit_coords: Tuple[int, int] = exit_coords
+        self.output_file: str = output_file
+        self.seed: int = seed
 
         self.algorithm: MazeStrategy = (
             PerfectMazeGen() if perfect else NonPerfectMazeGen()
         )
 
-        self.writer = MazeWriter()
-        self.solver = MazeSolver(self.entry, self.exit)
-        self.renderer = MazeRenderer()
+        self.writer: MazeWriter = MazeWriter()
+        self.solver: MazeSolver = MazeSolver(self.entry, self.exit_coords)
+        self.renderer: MazeRenderer = MazeRenderer()
 
         self.maze: List[List[int]] = []
         self.path: str = ""
@@ -43,7 +72,7 @@ class MazeEngine:
     def generate(self) -> None:
         """Generate a new maze using the selected strategy."""
         self.maze = self.algorithm.generate(
-            self.width, self.height, self.entry, self.exit, self.seed
+            self.width, self.height, self.entry, self.exit_coords, self.seed
         )
         self.path = ""
 
@@ -52,20 +81,22 @@ class MazeEngine:
         if not self.maze:
             self.generate()
 
-        solution = self.solver.solve(self.maze)
-        self.path = solution if solution else ""
+        solution: Optional[str] = self.solver.solve(self.maze)
+        self.path = solution if solution is not None else ""
 
     def save(self) -> None:
         """Save the maze and solution metadata to the output file."""
         if not self.maze:
             self.generate()
         self.writer.save(
-            self.maze, self.entry, self.exit, self.path, self.output_file
+            self.maze, self.entry, self.exit_coords,
+            self.path, self.output_file
         )
 
     def show(self, with_path: bool = False) -> None:
         """
         Render the maze to the console.
+
         Args:
             with_path: If True, renders the solved path on the maze.
         """
@@ -75,6 +106,6 @@ class MazeEngine:
             grid=self.maze,
             start=self.entry,
             path_str=self.path,
-            end_coords=self.exit,
-            show_path=with_path
+            end_coords=self.exit_coords,
+            show_path=with_path,
         )

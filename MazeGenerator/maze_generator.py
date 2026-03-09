@@ -1,47 +1,99 @@
-"""Module for various maze generation algorithms."""
-
-import random
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict, Set
+import random
+from typing import Dict, List, Set, Tuple
 
 
 class MazeStrategy(ABC):
-    """Base class for maze generation strategies with shared utilities."""
+    """
+    Base class for maze generation strategies with shared utilities.
 
-    N, E, S, W = 1, 2, 4, 8
-    PATTERN = [
+    Attributes:
+        N (int): North direction bitmask.
+        E (int): East direction bitmask.
+        S (int): South direction bitmask.
+        W (int): West direction bitmask.
+        PATTERN (List[List[int]]): Predefined static obstacle pattern.
+        P_H (int): Height of the pattern.
+        P_W (int): Width of the pattern.
+    """
+
+    N: int = 1
+    E: int = 2
+    S: int = 4
+    W: int = 8
+    PATTERN: List[List[int]] = [
         [1, 0, 0, 0, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 0, 1, 1, 1],
         [0, 0, 1, 0, 1, 0, 0],
         [0, 0, 1, 0, 1, 1, 1],
     ]
-    P_H, P_W = 5, 7
+    P_H: int = 5
+    P_W: int = 7
 
     @abstractmethod
-    def generate(self, width: int, height: int, entry: Tuple[int, int],
-                 exit_coords: Tuple[int, int], seed: int) -> List[List[int]]:
-        """Abstract method to generate a maze grid."""
+    def generate(
+        self,
+        width: int,
+        height: int,
+        entry: Tuple[int, int],
+        exit_coords: Tuple[int, int],
+        seed: int,
+    ) -> List[List[int]]:
+        """
+        Abstract method to generate a maze grid.
+
+        Args:
+            width: Maze width.
+            height: Maze height.
+            entry: Entry point coordinates.
+            exit_coords: Exit point coordinates.
+            seed: Random seed.
+
+        Returns:
+            The generated grid as a 2D list of integers.
+        """
         pass
 
-    def _open(self, grid: List[List[int]], c1: Tuple[int, int],
-              c2: Tuple[int, int], d: int) -> None:
-        """Remove the wall between two adjacent cells."""
+    def _open(
+        self,
+        grid: List[List[int]],
+        c1: Tuple[int, int],
+        c2: Tuple[int, int],
+        d: int,
+    ) -> None:
+        """
+        Remove the wall between two adjacent cells.
+
+        Args:
+            grid: The maze grid.
+            c1: First cell coordinates.
+            c2: Second cell coordinates.
+            d: Direction from c1 to c2.
+        """
         grid[c1[1]][c1[0]] &= ~d
-        # Correct reverse bit calculation
+        rev: int = self.E
         if d == self.N:
             rev = self.S
         elif d == self.S:
             rev = self.N
         elif d == self.E:
             rev = self.W
-        else:
-            rev = self.E
+
         grid[c2[1]][c2[0]] &= ~rev
 
-    def _open_ext(self, grid: List[List[int]], pos: Tuple[int, int],
-                  w: int, h: int) -> None:
-        """Open a wall on the outer boundary of the maze."""
+    def _open_ext(
+        self, grid: List[List[int]], pos: Tuple[int, int], w: int, h: int
+    ) -> None:
+        """
+        Open a wall on the outer boundary of the maze.
+
+        Args:
+            grid: The maze grid.
+            pos: Position on the boundary.
+            w: Maze width.
+            h: Maze height.
+        """
         x, y = pos
         if x == 0:
             grid[y][x] &= ~self.W
@@ -54,14 +106,35 @@ class MazeStrategy(ABC):
 
 
 class PerfectMazeGen(MazeStrategy):
-    """Kruskal's algorithm for generating a perfect maze."""
+    """Kruskal's algorithm implementation for generating a perfect maze."""
 
-    def generate(self, width: int, height: int, entry: Tuple[int, int],
-                 exit_coords: Tuple[int, int], seed: int) -> List[List[int]]:
-        """Generate a maze with a single unique path between any two points."""
+    def generate(
+        self,
+        width: int,
+        height: int,
+        entry: Tuple[int, int],
+        exit_coords: Tuple[int, int],
+        seed: int,
+    ) -> List[List[int]]:
+        """
+        Generate a maze with a single unique path.
+
+        Args:
+            width: Maze width.
+            height: Maze height.
+            entry: Entry point.
+            exit_coords: Exit point.
+            seed: Random seed.
+
+        Returns:
+            Perfect maze grid.
+        """
         random.seed(seed)
-        grid = [[15 for _ in range(width)] for _ in range(height)]
-        ox, oy = (width - self.P_W) // 2, (height - self.P_H) // 2
+        grid: List[List[int]] = [
+            [15 for _ in range(width)] for _ in range(height)
+        ]
+        ox: int = (width - self.P_W) // 2
+        oy: int = (height - self.P_H) // 2
 
         parent: Dict[Tuple[int, int], Tuple[int, int]] = {
             (x, y): (x, y) for y in range(height) for x in range(width)
@@ -74,7 +147,8 @@ class PerfectMazeGen(MazeStrategy):
             return parent[i]
 
         def union(i: Tuple[int, int], j: Tuple[int, int]) -> bool:
-            root_i, root_j = find(i), find(j)
+            root_i: Tuple[int, int] = find(i)
+            root_j: Tuple[int, int] = find(j)
             if root_i != root_j:
                 parent[root_i] = root_j
                 return True
@@ -107,12 +181,33 @@ class PerfectMazeGen(MazeStrategy):
 class NonPerfectMazeGen(MazeStrategy):
     """Generates a non-perfect maze using Kruskal's with cycle injection."""
 
-    def generate(self, width: int, height: int, entry: Tuple[int, int],
-                 exit_coords: Tuple[int, int], seed: int) -> List[List[int]]:
-        """Generate a maze with possible loops and multiple paths."""
+    def generate(
+        self,
+        width: int,
+        height: int,
+        entry: Tuple[int, int],
+        exit_coords: Tuple[int, int],
+        seed: int,
+    ) -> List[List[int]]:
+        """
+        Generate a maze with loops and multiple paths.
+
+        Args:
+            width: Maze width.
+            height: Maze height.
+            entry: Entry point.
+            exit_coords: Exit point.
+            seed: Random seed.
+
+        Returns:
+            Non-perfect maze grid.
+        """
         random.seed(seed)
-        grid = [[15 for _ in range(width)] for _ in range(height)]
-        off_x, off_y = (width - self.P_W) // 2, (height - self.P_H) // 2
+        grid: List[List[int]] = [
+            [15 for _ in range(width)] for _ in range(height)
+        ]
+        off_x: int = (width - self.P_W) // 2
+        off_y: int = (height - self.P_H) // 2
 
         def is_solid(x: int, y: int) -> bool:
             px, py = x - off_x, y - off_y
@@ -120,7 +215,7 @@ class NonPerfectMazeGen(MazeStrategy):
                 return self.PATTERN[py][px] == 1
             return False
 
-        walls = []
+        walls: List[Tuple[Tuple[int, int], Tuple[int, int], int]] = []
         for y in range(height):
             for x in range(width):
                 if is_solid(x, y):
@@ -135,16 +230,16 @@ class NonPerfectMazeGen(MazeStrategy):
             (x, y): (x, y) for x in range(width) for y in range(height)
         }
 
-        # Fixed missing type annotations here
         def find(p: Tuple[int, int]) -> Tuple[int, int]:
             if parent[p] == p:
                 return p
             parent[p] = find(parent[p])
             return parent[p]
 
-        unused_walls = []
-        for (c1, c2, d) in walls:
-            root1, root2 = find(c1), find(c2)
+        unused_walls: List[Tuple[Tuple[int, int], Tuple[int, int], int]] = []
+        for c1, c2, d in walls:
+            root1: Tuple[int, int] = find(c1)
+            root2: Tuple[int, int] = find(c2)
             if root1 != root2:
                 parent[root1] = root2
                 self._open(grid, c1, c2, d)
@@ -152,21 +247,43 @@ class NonPerfectMazeGen(MazeStrategy):
                 unused_walls.append((c1, c2, d))
 
         random.shuffle(unused_walls)
-        for (c1, c2, d) in unused_walls:
+        for c1, c2, d in unused_walls:
             if random.random() < 0.20:
                 if not self._creates_3x3_void(grid, c1, c2, d, width, height):
                     self._open(grid, c1, c2, d)
         return grid
 
-    def _creates_3x3_void(self, grid: List[List[int]], c1: Tuple[int, int],
-                          c2: Tuple[int, int], d: int, w: int, h: int) -> bool:
-        """Check if opening a wall creates a 3x3 empty square."""
+    def _creates_3x3_void(
+        self,
+        grid: List[List[int]],
+        c1: Tuple[int, int],
+        c2: Tuple[int, int],
+        d: int,
+        w: int,
+        h: int,
+    ) -> bool:
+        """
+        Check if opening a wall creates a 3x3 empty square.
+
+        Args:
+            grid: Current maze grid.
+            c1: First cell.
+            c2: Second cell.
+            d: Direction.
+            w: Grid width.
+            h: Grid height.
+
+        Returns:
+            True if a 3x3 void is created, False otherwise.
+        """
         self._open(grid, c1, c2, d)
-        found_void = False
-        y_range = range(max(0, min(c1[1], c2[1]) - 2),
-                        min(h - 2, max(c1[1], c2[1]) + 1))
-        x_range = range(max(0, min(c1[0], c2[0]) - 2),
-                        min(w - 2, max(c1[0], c2[0]) + 1))
+        found_void: bool = False
+        y_range = range(
+            max(0, min(c1[1], c2[1]) - 2), min(h - 2, max(c1[1], c2[1]) + 1)
+        )
+        x_range = range(
+            max(0, min(c1[0], c2[0]) - 2), min(w - 2, max(c1[0], c2[0]) + 1)
+        )
         for y in y_range:
             for x in x_range:
                 if self._is_3x3_empty(grid, x, y):
@@ -176,7 +293,6 @@ class NonPerfectMazeGen(MazeStrategy):
                 break
 
         if found_void:
-            # Re-close wall if void found
             grid[c1[1]][c1[0]] |= d
             if d == self.E:
                 grid[c2[1]][c2[0]] |= self.W
@@ -185,7 +301,17 @@ class NonPerfectMazeGen(MazeStrategy):
         return found_void
 
     def _is_3x3_empty(self, grid: List[List[int]], sx: int, sy: int) -> bool:
-        """Determine if a 3x3 block of cells has no internal walls."""
+        """
+        Determine if a 3x3 block of cells has no internal walls.
+
+        Args:
+            grid: Maze grid.
+            sx: Start X coordinate of the 3x3 block.
+            sy: Start Y coordinate of the 3x3 block.
+
+        Returns:
+            True if the block is empty.
+        """
         for y in range(sy, sy + 3):
             if (grid[y][sx] & self.E) or (grid[y][sx + 1] & self.E):
                 return False
