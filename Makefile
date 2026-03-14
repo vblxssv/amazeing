@@ -30,7 +30,7 @@ run: venv
 
 clean:
 	$(INFO) "Cleaning up workspace..."
-	rm -rf $(VENV) dist build *.egg-info .mypy_cache .pytest_cache *.whl
+	rm -rf $(VENV) dist build *.egg-info .mypy_cache .pytest_cache
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
