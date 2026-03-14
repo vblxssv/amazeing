@@ -35,7 +35,6 @@ def main() -> None:
 
         show_path: bool = True
         while True:
-            print("\033[H\033[J", end="")
             theme_name: str = engine.renderer.get_current_theme_name()
             print(f"Current Theme: {theme_name}")
             print(f"Output File: {engine.output_file} (Autosaved)")
@@ -59,6 +58,7 @@ def main() -> None:
                 break
             else:
                 input("Invalid command. Press Enter to try again...")
+            print("\033[H\033[J", end="")
 
     except FileNotFoundError:
         print(f"Error: File '{config_path}' not found.")
