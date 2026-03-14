@@ -82,28 +82,6 @@ class MazeStrategy(ABC):
 
         grid[c2[1]][c2[0]] &= ~rev
 
-    def _open_ext(
-        self, grid: List[List[int]], pos: Tuple[int, int], w: int, h: int
-    ) -> None:
-        """
-        Open a wall on the outer boundary of the maze.
-
-        Args:
-            grid: The maze grid.
-            pos: Position on the boundary.
-            w: Maze width.
-            h: Maze height.
-        """
-        x, y = pos
-        if x == 0:
-            grid[y][x] &= ~self.W
-        elif x == w - 1:
-            grid[y][x] &= ~self.E
-        if y == 0:
-            grid[y][x] &= ~self.N
-        elif y == h - 1:
-            grid[y][x] &= ~self.S
-
 
 class PerfectMazeGen(MazeStrategy):
     """Kruskal's algorithm implementation for generating a perfect maze."""
