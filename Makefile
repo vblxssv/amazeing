@@ -17,7 +17,7 @@ $(VENV)/bin/activate: requirements.txt
 	$(PYTHON_SYS) -m venv $(VENV)
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
-	$(PIP) install build wheel  # Гарантируем наличие инструментов сборки
+	$(PIP) install build wheel  
 	@touch $(VENV)/bin/activate
 
 venv: $(VENV)/bin/activate
