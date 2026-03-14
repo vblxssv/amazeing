@@ -373,17 +373,19 @@ During the development of this project, several references and tools were used t
 - Python static analysis guides (mypy, flake8) — for maintaining code quality and type safety.
 
 ---
-
 ### AI Assistance
 
-AI tools were leveraged for:
+During the development of this project, AI tools were occasionally used as a **supporting resource** for improving documentation and discussing implementation ideas.
 
-- **Code organization and explanation** — helping to structure README sections, summarize algorithms, and write clear docstrings.
-- **Python syntax and type hints** — generating type-annotated method stubs and utility functions.
-- **Algorithm discussion and comparison** — assisting in writing explanations for DFS, Kruskal-based maze generation, and cycle injection in non-perfect mazes.
+AI assistance was mainly used for:
 
-> Note: AI was used purely as a **writing and planning assistant**. All core logic, algorithm implementation, and testing were fully authored by the project team.
+- **Documentation support** — helping us organize sections of the README, clarify explanations, and improve the readability of algorithm descriptions.
+- **Python syntax and type hints** — assisting with formatting type annotations and refining docstrings for better code clarity.
+- **Algorithm discussion** — helping us explore and compare maze generation approaches and refine the written explanation of the Kruskal-based implementation and the non-perfect maze extension.
+
+> AI tools were used strictly as a **support tool for documentation and discussion**.  
+> The design decisions, algorithm implementation, and testing of the maze generator were carried out entirely by the project team.
 
 ---
 
-This combination of references and AI assistance allowed the team to **implement modular, readable, and reproducible maze generation strategies** while keeping documentation professional and accessible.
+Using these resources helped us improve the **clarity and structure of the documentation** while focusing our main effort on implementing a modular and reliable maze generation system.
